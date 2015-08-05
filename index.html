@@ -24,8 +24,6 @@
 
 	<body>
 
-		<!-- <iframe width="320" height="240" src="https://www.youtube.com/embed/zRMoi-xipQ0?rel=0&amp;autoplay=1" frameborder="0" allowfullscreen>
-		</iframe> -->
 		<iframe width="320" height="240" src="https://www.youtube.com//v/zRMoi-xipQ0?playlist=zRMoi-xipQ0&autoplay=1&rel=0" frameborder="0" allowfullscreen>
 		</iframe>
 
@@ -36,12 +34,6 @@
 		<canvas id="overlay" width="320" height="240"></canvas>
 		<canvas id="debug" width="320" height="240"></canvas>
 		
-		<!-- <p id='gUMMessage'></p>
-		<p>Status : <span id='headtrackerMessage'></span></p>
-		<p><input type="button" onclick="htracker.stop();htracker.start();" value="reinitiate facedetection"></input>
-		<br/><br/>
-		<input type="checkbox" onclick="showProbabilityCanvas()" value="asdfasd"></input>Show probability-map</p> -->
-		
 		<script>
 		  // set up video and canvas elements needed
 		  var isTracking = false;
@@ -50,10 +42,9 @@
 			var yCenter;
 			var videoInput = document.getElementById('vid');
 			var canvasInput = document.getElementById('compare');
-			var canvasOverlay = document.getElementById('overlay')
+			var canvasOverlay = document.getElementById('overlay');
 			var debugOverlay = document.getElementById('debug');
 			var overlayContext = canvasOverlay.getContext('2d');
-			//var overlayContext2 = canvasOverlay.getContext('2d');
 			canvasOverlay.style.position = "absolute";
 			canvasOverlay.style.top = '0px';
 			canvasOverlay.style.zIndex = '100001';
@@ -63,42 +54,10 @@
 			debugOverlay.style.zIndex = '100002';
 			debugOverlay.style.display = 'none';
 			
-			// add some custom messaging
-			
-			// statusMessages = {
-			// 	"whitebalance" : "checking for stability of camera whitebalance",
-			// 	"detecting" : "Detecting face",
-			// 	"hints" : "Hmm. Detecting the face is taking a long time",
-			// 	"redetecting" : "Lost track of face, redetecting",
-			// 	"lost" : "Lost track of face",
-			// 	"found" : "Tracking face"
-			// };
-			
-			// supportMessages = {
-			// 	"no getUserMedia" : "Unfortunately, <a href='http://dev.w3.org/2011/webrtc/editor/getusermedia.html'>getUserMedia</a> is not supported in your browser. Try <a href='http://www.opera.com/browser/'>downloading Opera 12</a> or <a href='http://caniuse.com/stream'>another browser that supports getUserMedia</a>. Now using fallback video for facedetection.",
-			// 	"no camera" : "No camera found. Using fallback video for facedetection."
-			// };
-			
-			// document.addEventListener("headtrackrStatus", function(event) {
-			// 	if (event.status in supportMessages) {
-			// 		var messagep = document.getElementById('gUMMessage');
-			// 		messagep.innerHTML = supportMessages[event.status];
-			// 	} else if (event.status in statusMessages) {
-			// 		var messagep = document.getElementById('headtrackerMessage');
-			// 		messagep.innerHTML = statusMessages[event.status];
-			// 	}
-			// }, true);
-			
-
-
-
-
 
 			// the face tracking setup
 			
 			var htracker = new headtrackr.Tracker({
-				// altVideo : {ogv : "./media/capture5.ogv",
-				// mp4 : "./media/capture5.mp4"},
 				calcAngles : true,
 				ui : false,
 				headPosition : false,
@@ -109,12 +68,9 @@
 			htracker.start();
 			
 			// for each facetracking event received draw rectangle around tracked face on canvas
-			
 			document.addEventListener("facetrackingEvent", function( event ) {
 				// clear canvas
 				overlayContext.clearRect(0,0,320,240);
-				//overlayContext2.clearRect(0,0,320,240);
-				// once we have stable tracking, draw rectangle
 				if (event.detection == "CS") {
 					overlayContext.translate(event.x, event.y);
 					overlayContext.rotate(event.angle-(Math.PI/2));
@@ -131,7 +87,6 @@
 					var y2 = (event.height/5);
 					xCenter = ((x1 +x2)/2) + event.x;
           yCenter = ((y1 + y2)/2) + event.y;
-					// console.log(xCenter + " , " + yCenter);
 
 				// This determines if my face is close to the screen
 				var faceWidth = event.width;
@@ -145,49 +100,36 @@
 
 					var canvas = document.getElementById("imgCanvas");
 					var context = canvas.getContext("2d");
-					context.beginPath(); // Start the path
-					// posx = e.pageX;
-					// posy = e.pageY;
-					// console.log("WHERE I CLICK WITH MOUSE: ", posx, posy);
-					// console.log("WHERE IT THINKS CENTER OF BOX IS: ", xCenter, yCenter);
-
+					var coords = [
+						[(xCenter - 20), (yCenter - 10), 20, "rgba(209,210,210,.07)"],
+						[(xCenter - 30), (yCenter - 25), 10, "rgba(209,210,210,.04)"],
+						[(xCenter - 5), (yCenter - 5), 5, "rgba(209,210,210,.03)"],
+						[(xCenter - 35), (yCenter), 15, "rgba(209,210,210,.05)"],
+						[(xCenter), (yCenter), 12, "rgba(209,210,210,.03)"],
+						[(xCenter), (yCenter + 10), 5, "rgba(209,210,210,.03)"],
+						[(xCenter + 20), (yCenter - 40), 4, "rgba(209,210,210,.03)"],
+						[(xCenter - 20), (yCenter + 30), 12, "rgba(209,210,210,.02)"]
+						];
+					for(var i = 0; i < coords.length; i++) {
+						context.beginPath(); // Start the path
+						context.arc(coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
+							context.closePath();
+							context.fillStyle = coords[i][3];
+							context.fill();
+					}
+					// context.beginPath(); // Start the path
 					// FOR SOME REASON, IT LOOKS BETTER WITH THESE MEASURMENTS, EVEN THOUGH IT DOESN'T COORELATE TO CONSOLE.LOG ABOVE
-					context.arc((xCenter - 20), (yCenter - 10), 30, 0, Math.PI*2, false); // Draw a circle
-					context.closePath(); // Close the path
-					context.fillStyle = "rgba(209,210,210,.07)";
-					context.fill(); // Fill the path
+					// context.arc((xCenter - 20), (yCenter - 10), 30, 0, Math.PI*2, false); // Draw a circle
+					// context.closePath(); // Close the path
+					// context.fillStyle = "rgba(209,210,210,.07)";
+					// context.fill(); // Fill the path
         } // If statement for face2canvasratio 
 				} // This ends the if statement for event.detection
 			});
 
     document.addEventListener("mousedown", function(e){
     			isTracking = true;
-					// var canvas = document.getElementById("imgCanvas");
-					// var context = canvas.getContext("2d");
-					// context.beginPath(); // Start the path
-					// posx = e.pageX;
-					// posy = e.pageY;
-
-					// console.log("Hovering over!");
-					// var canvas = document.getElementById("imgCanvas");
-					// var context = canvas.getContext("2d");
-					// var mouseX = e.clientX;
-    	// 		var mouseY = e.clientY;
-					// context.clearRect(mouseX, mouseY, 8, 8);
-					// console.log("WHERE I CLICK WITH MOUSE: ", posx, posy);
-					// console.log("WHERE IT THINKS CENTER OF BOX IS: ", xCenter, yCenter);
-
-					// // FOR SOME REASON, IT LOOKS BETTER WITH THESE MEASURMENTS, EVEN THOUGH IT DOESN'T COORELATE TO CONSOLE.LOG ABOVE
-					// context.arc((xCenter - 20), (yCenter - 10), 10, 0, Math.PI*2, false); // Draw a circle
-					// context.closePath(); // Close the path
-					// context.fill(); // Fill the path
 				});
-	  //   var clearCircle = function(x, y, radius, contextForClear) {
-			//     contextForClear.beginPath();
-			//     contextForClear.arc(x, y, radius, 0, 2 * Math.PI, false);
-			//     //contextForClear.clip();
-			//     contextForClear.clearRect(x - radius - 1, y - radius - 1, radius * 2 + 2, radius * 2 + 2);
-			// };
 
     document.addEventListener("mousemove", function(e){
     	if(isTracking === true) {
@@ -198,7 +140,6 @@
 					context.clearRect(mouseX, mouseY, 4, 8);
 					context.clearRect(mouseX, mouseY, 6, 6);
 					context.clearRect(mouseX, mouseY, 5, 7);
-					// clearCircle(mouseX, mouseY, 8, context);
     	}
     });
 
