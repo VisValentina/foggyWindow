@@ -132,14 +132,30 @@
 				});
 
     document.addEventListener("mousemove", function(e){
+    	var lastMouseCoords;
     	if(isTracking === true) {
     			var canvas = document.getElementById("imgCanvas");
 					var context = canvas.getContext("2d");
 					var mouseX = e.clientX;
     			var mouseY = e.clientY;
-					context.clearRect(mouseX, mouseY, 4, 8);
-					context.clearRect(mouseX, mouseY, 6, 6);
-					context.clearRect(mouseX, mouseY, 5, 7);
+
+    			// THIS ONE DIDN'T WORK
+    			context.globalCompositeOperation = "xor";
+					context.beginPath();
+					context.moveTo(mouseX , mouseY);
+					context.lineTo(mouseX - canvas.offsetLeft, mouseY - canvas.offsetTop);
+					context.strokeStyle = "rgba(0,0,0,1)";
+					context.closePath();
+
+    			// This one is interesting - the globalCompositeOperation could potentially be modified to fade out the fog???
+    			// context.globalCompositeOperation="destination-out";
+    			// context.arc(mouseX, mouseY, 1, 0, Math.PI*2, false);
+    			// context.fill();
+
+    			// THIS ONE WORKS BUT LEAVES JUMPS AND JAGGED LINES
+					// context.clearRect(mouseX, mouseY, 4, 8);
+					// context.clearRect(mouseX, mouseY, 6, 6);
+					// context.clearRect(mouseX, mouseY, 5, 7);
     	}
     });
 
