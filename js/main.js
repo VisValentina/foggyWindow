@@ -7,7 +7,8 @@ $(document).ready(function(){
        videoInput = document.getElementById('vid'),
        canvasInput = document.getElementById('compare'),
        canvasOverlay = document.getElementById('overlay'),
-       overlayContext = canvasOverlay.getContext('2d');
+       overlayContext = canvasOverlay.getContext('2d'),
+       globalFaceRatio;
 
   // set style for canvas for the headtrackr
   canvasOverlay.style.position = "absolute";
@@ -63,10 +64,12 @@ $(document).ready(function(){
     var faceWidth = event.width,
         videoWidth = videoInput.width,
         face2canvasRatio = videoWidth/faceWidth;
+        globalFaceRatio = face2canvasRatio;
 
     if(face2canvasRatio <= 2.4) {
       var pracImgCanvas = document.getElementById("pracImgCanvas");
       var pracImgContext = pracImgCanvas.getContext("2d");
+      pracImgContext.globalCompositeOperation = "lighten";
       var pracImgWidth = pracImgCanvas.clientWidth;
       var pracImgHeight = pracImgCanvas.clientHeight;
       // to adjust the painting of the fog from the dimensions of the overlay to the pracImgCanvas
@@ -148,6 +151,7 @@ var clickX = [],
     pracImgContext.shadowColor = "rgba(0,0,0,1)";
     pracImgContext.lineWidth =  windowRatioCorrection * 4;
     pracImgContext.globalCompositeOperation = "destination-out";
+    
 
     for(var i=0; i < clickX.length; i++) {
       pracImgContext.beginPath();
@@ -180,6 +184,10 @@ var clickX = [],
 
   $('#pracImgCanvas').mouseup(function(e){
     paint = false;
+    // This makes it so you don't reveal old drawings
+    clickX = [];
+    clickY = [];
+    clickDrag = [];
   });
 
   // $('#pracImgCanvas').mouseleave(function(e){
