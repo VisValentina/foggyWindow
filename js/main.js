@@ -47,10 +47,14 @@ $(document).ready(function(){
       overlayContext.rotate((Math.PI/2)-event.angle);
       overlayContext.translate(-event.x, -event.y);
 
+
       var x1 = (-(event.width/3)) >> 0;
       var y1 = (-(event.height/2) + 85) >> 0;
       var x2 = ((event.width/5)+ 70);
       var y2 = (event.height/5);
+
+      // instead of add event.x & y, subtract: DIDN'T WORK
+      // try changing event.x to event.width: THIS WORKED!!
       xCenter = ((x1 +x2)/2) + event.x;
       yCenter = ((y1 + y2)/2) + event.y;
 
@@ -63,8 +67,8 @@ $(document).ready(function(){
     if(face2canvasRatio <= 2.4) {
       var pracImgCanvas = document.getElementById("pracImgCanvas");
       var pracImgContext = pracImgCanvas.getContext("2d");
-      pracImgWidth = pracImgCanvas.clientWidth;
-      pracImgHeight = pracImgCanvas.clientHeight;
+      var pracImgWidth = pracImgCanvas.clientWidth;
+      var pracImgHeight = pracImgCanvas.clientHeight;
       // to adjust the painting of the fog from the dimensions of the overlay to the pracImgCanvas
       xCenter = xCenter * (pracImgWidth / 320.0);
       yCenter = yCenter * (pracImgHeight / 240.0);
@@ -84,8 +88,9 @@ $(document).ready(function(){
         [(xCenter - (20 * windowRatioCorrection)), (yCenter - (30 * windowRatioCorrection)), (12 * windowRatioCorrection), "rgba(209,210,210,.02)"]
         ];
         for(var i = 0; i < coords.length; i++) {
+          console.log(coords[i][0]);
           pracImgContext.beginPath(); // Start the path
-          pracImgContext.arc(coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
+          pracImgContext.arc(pracImgWidth-coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
             pracImgContext.closePath();
             pracImgContext.fillStyle = coords[i][3];
             pracImgContext.fill();
@@ -125,10 +130,10 @@ var clickX = [],
     windowRatioCorrection = pracImgWidth / 320.0;
 
   // blue circle is st stub to test erasing
-  pracImgContext.beginPath();
-  pracImgContext.arc(100, 75, 50 , 0, 2*Math.PI);
-  pracImgContext.fillStyle = "blue";
-  pracImgContext.fill();
+  // pracImgContext.beginPath();
+  // pracImgContext.arc(100, 75, 50 , 0, 2*Math.PI);
+  // pracImgContext.fillStyle = "blue";
+  // pracImgContext.fill();
 
   function addClick(x, y, dragging) {
     clickX.push(x);
@@ -177,8 +182,8 @@ var clickX = [],
     paint = false;
   });
 
-  $('#pracImgCanvas').mouseleave(function(e){
-    paint = false;
-  });
+  // $('#pracImgCanvas').mouseleave(function(e){
+  //   paint = false;
+  // });
 
 }); // end
