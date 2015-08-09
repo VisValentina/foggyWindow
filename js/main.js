@@ -132,11 +132,32 @@ var clickX = [],
     pracImgWidth = pracImgCanvas.clientWidth,
     windowRatioCorrection = pracImgWidth / 320.0;
 
-  // blue circle is st stub to test erasing
-  // pracImgContext.beginPath();
-  // pracImgContext.arc(100, 75, 50 , 0, 2*Math.PI);
-  // pracImgContext.fillStyle = "blue";
-  // pracImgContext.fill();
+  // PRACTICE OUTLINE
+    // pracImgContext.beginPath();
+    // pracImgContext.globalAlpha = 0.4;
+    // // pracImgContext.fillStyle = 'blue';
+    // // pracImgContext.arc(150,75,50, 0, Math.PI * 2, false);
+    // // pracImgContext.closePath();
+    // // pracImgContext.fill();
+
+    // pracImgContext.beginPath();
+    // pracImgContext.arc(150,75,50, 0, Math.PI * 2, false);
+    // pracImgContext.clip();
+
+    // pracImgContext.beginPath();
+    // pracImgContext.strokeStyle = 'red';
+    // pracImgContext.globalCompositeOperation = "destination-out";
+    // pracImgContext.lineWidth = 10;
+    // pracImgContext.shadowBlur = 15;
+    // pracImgContext.shadowColor = "rgba(0,0,0,0.5)";
+    // pracImgContext.shadowOffsetX = 0;
+    // pracImgContext.shadowOffsetY = 0;
+    // pracImgContext.arc(150,75,50 + 3, 0, Math.PI * 2, false);
+    // pracImgContext.stroke();
+
+    // //black rect
+    // pracImgContext.fillRect(0,0,320, 240);
+// END PRACTICE
 
   function addClick(x, y, dragging) {
     clickX.push(x);
