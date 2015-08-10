@@ -1,4 +1,8 @@
 $(document).ready(function(){
+
+  // Hide the intro div page
+  $("#introInfo").delay(7000).fadeOut(9000);
+
   // set up video and canvas elements needed
 
   var isTracking = false,
@@ -192,13 +196,13 @@ var clickX = [],
         mouseY = e.pageY - this.offsetTop;
 
     paint = true;
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+    addClick(e.pageX, e.pageY);
     redraw();
   });
 
   $('#pracImgCanvas').mousemove(function(e){
     if(paint){
-      addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
+      addClick(e.pageX, e.pageY, true);
       redraw();
     }
   });
