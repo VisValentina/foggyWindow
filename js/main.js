@@ -58,7 +58,6 @@ $(document).ready(function(){
       var x2 = ((event.width/5)+ 70);
       var y2 = (event.height/5);
 
-      // instead of add event.x & y, subtract: DIDN'T WORK
       // try changing event.x to event.width: THIS WORKED!!
       xCenter = ((x1 +x2)/2) + event.x;
       yCenter = ((y1 + y2)/2) + event.y;
@@ -98,9 +97,9 @@ $(document).ready(function(){
           console.log(coords[i][0]);
           pracImgContext.beginPath(); // Start the path
           pracImgContext.arc(pracImgWidth-coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
-            pracImgContext.closePath();
-            pracImgContext.fillStyle = coords[i][3];
-            pracImgContext.fill();
+          pracImgContext.closePath();
+          pracImgContext.fillStyle = coords[i][3];
+          pracImgContext.fill();
         }
       } // If statement for face2canvasratio
     } // This ends the if statement for event.detection
@@ -134,34 +133,9 @@ var clickX = [],
     pracImgCanvas = document.getElementById("pracImgCanvas"),
     pracImgContext = pracImgCanvas.getContext("2d"),
     pracImgWidth = pracImgCanvas.clientWidth,
-    windowRatioCorrection = pracImgWidth / 320.0;
-
-  // PRACTICE OUTLINE
-    // pracImgContext.beginPath();
-    // pracImgContext.globalAlpha = 0.4;
-    // // pracImgContext.fillStyle = 'blue';
-    // // pracImgContext.arc(150,75,50, 0, Math.PI * 2, false);
-    // // pracImgContext.closePath();
-    // // pracImgContext.fill();
-
-    // pracImgContext.beginPath();
-    // pracImgContext.arc(150,75,50, 0, Math.PI * 2, false);
-    // pracImgContext.clip();
-
-    // pracImgContext.beginPath();
-    // pracImgContext.strokeStyle = 'red';
-    // pracImgContext.globalCompositeOperation = "destination-out";
-    // pracImgContext.lineWidth = 10;
-    // pracImgContext.shadowBlur = 15;
-    // pracImgContext.shadowColor = "rgba(0,0,0,0.5)";
-    // pracImgContext.shadowOffsetX = 0;
-    // pracImgContext.shadowOffsetY = 0;
-    // pracImgContext.arc(150,75,50 + 3, 0, Math.PI * 2, false);
-    // pracImgContext.stroke();
-
-    // //black rect
-    // pracImgContext.fillRect(0,0,320, 240);
-// END PRACTICE
+    windowRatioCorrection = pracImgWidth / 320.0,
+    aa = pracImgCanvas.clientWidth,
+    vp = pracImgCanvas.clientHeight;
 
   function addClick(x, y, dragging) {
     clickX.push(x);
@@ -187,7 +161,7 @@ var clickX = [],
        }
        pracImgContext.lineTo(clickX[i], clickY[i]);
        pracImgContext.closePath();
-        pracImgContext.stroke();
+       pracImgContext.stroke();
     }
   }
 
@@ -213,10 +187,82 @@ var clickX = [],
     clickX = [];
     clickY = [];
     clickDrag = [];
-  });
 
-  // $('#pracImgCanvas').mouseleave(function(e){
-  //   paint = false;
-  // });
+    // For the slow clearing...
+    var timers = [],
+    secondsStart = 3000,
+    secondsInc = 200,
+    reduceRadius = 0,
+    opacityInc = 0.0;
+
+    for(var i = 0; i < 300; i++) {
+      secondsStart += secondsInc;
+      if (timers.length % 4 === 0) {
+        reduceRadius += 4;
+        opacityInc = 0.05;
+      }
+      opacityInc += 0.025;
+     timers.push([ new Date( ( new Date() ).getTime() + secondsStart ), reduceRadius, opacityInc]);
+    }
+
+    timer = setInterval( clearFog, 200 );
+
+    // function that clears canvas
+    function clearFog() {
+        // check if times array is empty, when try and executes block of code, array will shifted (dequeue)
+        if( timers.length ) {
+            // check if the first row is equal to the current time
+            if ( parseInt( timers[0][0].getTime() / 1000 ) <= parseInt( new Date().getTime() / 1000 ) ) {
+                // draw a arc with only an outline of destination-out that ~erase
+                // make globalAlpha gradually less (higher, boundry 1)
+                //pracImgContext.scale(1, 1); // trying to make an ellipse
+                pracImgContext.beginPath();
+                pracImgContext.globalCompositeOperation = "destination-out";
+                pracImgContext.lineWidth = 4;
+                pracImgContext.globalAlpha = timers[0][2];
+                pracImgContext.arc(aa/2, vp/2, 400-timers[0][1], 0, 2*Math.PI);
+                pracImgContext.stroke();
+                // remove from array
+                timers.shift();
+            }
+        } else {
+            // when array is empty, remove interval
+            clearInterval( timer );
+            //pracImgContext.scale(1,1);
+        }
+    }
+    // End slow clearing
+  }); // End mouseup
+
+/** COLT THIS IS FOR YOU!!!!
+  * This is mock data that they for loop that makes the array outputs
+  * The numbers are different than the current for loop
+*/
+// var timers = [
+//     [new Date( ( new Date() ).getTime() + 1000), 10, 0.2],
+//     [new Date( ( new Date() ).getTime() + 1200),10, 0.25],
+//     [new Date( ( new Date() ).getTime() + 1400),10, 0.3],
+//     [new Date( ( new Date() ).getTime() + 1600),10, 0.35],
+//     [new Date( ( new Date() ).getTime() + 1800),10, 0.4],
+//     [new Date( ( new Date() ).getTime() + 2000),10, 0.45],
+//     [new Date( ( new Date() ).getTime() + 2200),10, 0.5],
+//     [new Date( ( new Date() ).getTime() + 2400),10, 0.55],
+//     [new Date( ( new Date() ).getTime() + 2600), 10, 0.6],
+//     [new Date( ( new Date() ).getTime() + 2800),10, 0.65],
+//     [new Date( ( new Date() ).getTime() + 3000),10, 0.7],
+//     [new Date( ( new Date() ).getTime() + 3200),10, 0.75],
+//     [new Date( ( new Date() ).getTime() + 3400),10, 0.8],
+//     [new Date( ( new Date() ).getTime() + 3600),10, 0.85],
+//     [new Date( ( new Date() ).getTime() + 3800),10, 0.9],
+//     [new Date( ( new Date() ).getTime() + 4000),10, 0.95],
+//     [new Date( ( new Date() ).getTime() + 4200),20, 0.1],
+//     [new Date( ( new Date() ).getTime() + 18000),20, 0.2],
+//     [new Date( ( new Date() ).getTime() + 19000),20, 0.3],
+//     [new Date( ( new Date() ).getTime() + 20000),20, 0.4],
+//     [new Date( ( new Date() ).getTime() + 21000),20, 0.5],
+//     [new Date( ( new Date() ).getTime() + 22000),20, 0.6],
+//     [new Date( ( new Date() ).getTime() + 23000),20, 0.8],
+//     [new Date( ( new Date() ).getTime() + 24000),20, 0.9],
+// ]
 
 }); // end
