@@ -17,6 +17,7 @@ $(document).ready(function(){
   // set style for canvas for the headtrackr
   canvasOverlay.style.position = "absolute";
   canvasOverlay.style.top = '0px';
+  // IN FRONT
   canvasOverlay.style.zIndex = '100001';
   canvasOverlay.style.display = 'none';
 
@@ -30,9 +31,9 @@ $(document).ready(function(){
 
   // the face tracking setup
   var htracker = new headtrackr.Tracker({
-    calcAngles : true,
-    ui : false,
-    headPosition : false
+      calcAngles : true,
+      ui : false,
+      headPosition : false
   });
 
   htracker.init(videoInput, canvasInput);
@@ -42,7 +43,10 @@ $(document).ready(function(){
   document.addEventListener("facetrackingEvent", function( event ) {
     // clear canvas
     overlayContext.clearRect(0,0,320,240);
+
     if (event.detection == "CS") {
+
+      //This is the green box that represents the mouth, -AA
       overlayContext.translate(event.x, event.y);
       overlayContext.rotate(event.angle-(Math.PI/2));
       overlayContext.strokeStyle = "#00CC00";
@@ -52,13 +56,15 @@ $(document).ready(function(){
       overlayContext.rotate((Math.PI/2)-event.angle);
       overlayContext.translate(-event.x, -event.y);
 
-
+      // event.[width/height] is the face detected
+      // points to get the diagonal
       var x1 = (-(event.width/3)) >> 0;
       var y1 = (-(event.height/2) + 85) >> 0;
       var x2 = ((event.width/5)+ 70);
       var y2 = (event.height/5);
 
       // try changing event.x to event.width: THIS WORKED!!
+      // get center of green box based on coords of the diagonal, -AA
       xCenter = ((x1 +x2)/2) + event.x;
       yCenter = ((y1 + y2)/2) + event.y;
 
@@ -93,8 +99,10 @@ $(document).ready(function(){
         [(xCenter + (20 * windowRatioCorrection)), (yCenter - (40 * windowRatioCorrection)), (4 * windowRatioCorrection), "rgba(209,210,210,.03)"],
         [(xCenter - (20 * windowRatioCorrection)), (yCenter - (30 * windowRatioCorrection)), (12 * windowRatioCorrection), "rgba(209,210,210,.02)"]
         ];
+
         for(var i = 0; i < coords.length; i++) {
-          console.log(coords[i][0]);
+          //console.log(coords[i][0]);
+          // draws each circle in the coords array
           pracImgContext.beginPath(); // Start the path
           pracImgContext.arc(pracImgWidth-coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
           pracImgContext.closePath();
