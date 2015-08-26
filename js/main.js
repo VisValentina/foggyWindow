@@ -9,7 +9,9 @@ $(document).ready(function(){
   // Hide the intro div page
   $("#introInfo").delay(7000).fadeOut(9000);
 
-  $("iframe").css("margin-top", (document.documentElement.clientHeight * -(0.076)))
+  var clientHeight = document.documentElement.clientHeight;
+  $("iframe").css("margin-top", (clientHeight * -(0.076)));
+  $("#shareFacebook").css("bottom", (clientHeight * (0.076)) - (clientHeight * 0.12) );
 
   // set up video and canvas elements needed
 

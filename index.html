@@ -22,6 +22,17 @@
     <link href='http://fonts.googleapis.com/css?family=Lato:700,100' rel='stylesheet' type='text/css'>
 	</head>
 	<body>
+	<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+		</script>
+
+		<div class="fb-share-button" id="shareFacebook" data-href="http://www.fogwindow.com" data-layout="button"></div>
 
 		<!--  Rain video , this is top and left 0 -->
 		<iframe src="https://www.youtube.com//v/zRMoi-xipQ0?start=15&playlist=zRMoi-xipQ0&autoplay=1&rel=0" frameborder="0" onload="this.width=screen.width;this.height=(1.07*(screen.height));" allowfullscreen>
