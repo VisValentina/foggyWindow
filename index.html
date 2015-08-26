@@ -17,14 +17,20 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
+		<script src="https://connect.facebook.net/en_us/all.js"></script>
     <link rel="stylesheet" type="text/css" href="mystyle.css"/>
     <link href='http://fonts.googleapis.com/css?family=Lato:700,100' rel='stylesheet' type='text/css'>
 	</head>
 	<body>
 
 		<!--  Rain video , this is top and left 0 -->
-		<iframe src="https://www.youtube.com//v/zRMoi-xipQ0?start=15&playlist=zRMoi-xipQ0&autoplay=1&rel=0" frameborder="0" onload="this.width=screen.width;this.height=screen.height;" allowfullscreen>
+		<iframe src="https://www.youtube.com//v/zRMoi-xipQ0?start=15&playlist=zRMoi-xipQ0&autoplay=1&rel=0" frameborder="0" onload="this.width=screen.width;this.height=(1.07*(screen.height));" allowfullscreen>
 		</iframe>
+		<!-- <video src="rainVideo.mp4" type="video/mp4" width="320" height="240" preload="auto" autoplay></video> -->
+		<!-- <video width="320" height="240" autoplay>
+		  <source src="rainVideo.mp4" type="video/mp4">
+			Your browser does not support the video tag.
+		</video> -->
 
 		<!-- All for Headtrackr -->
 		<canvas id="compare" width="320" height="240" style="display:none"></canvas>
@@ -34,17 +40,21 @@
 		<canvas style="margin:0;padding:0;position:absolute;top:0;left:0;border: 1px solid #000" id="pracImgCanvas" >
 		</canvas>
 
+		<div id="notChrome">
+			<div id="introText">
+				<p><span class="bold">Yoinks! </span>Please revisit this page using the Chrome browser</p>
+			</div>
+			<p class="creators">Valentina & Armand</p>
+		</div>
+
 		<div id="introInfo">
 			<div id="introText">
 				<h3><span id="fog">FOG</span> WINDOW</h3>
 				<p><span class="bold">To use:</span> Allow the camera settings and proceed to blow closely onto the screen at a slow, steady pace. You'll need to get quite close to achieve results. After blowing, use your cursor / touch screen to draw as you please.</p>
 				<p class="inspiration">Inspired by sleepy afternoons and simple pleasures.</p>
 			</div>
-			<p class="creators">Valentina & Armand</p>
+			<p class="creators"><a href="https://www.linkedin.com/in/valentinapherson" target="_blank">Valentina</a> & <a href="https://www.linkedin.com/in/armandaquino" target="_blank">Armand</a></p>
 		</div>
 
-
-		<script type="text/javascript">
-		</script>
 	</body>
 </html>

@@ -1,11 +1,19 @@
 $(document).ready(function(){
 
+  var isChrome = !!window.chrome;
+
+  if (!isChrome) {
+    $('#notChrome').show();
+    $('#introInfo').hide();
+  }
   // Hide the intro div page
   $("#introInfo").delay(7000).fadeOut(9000);
 
+  $("iframe").css("margin-top", (document.documentElement.clientHeight * -(0.076)))
+
   // set up video and canvas elements needed
 
-  var isTracking = false,
+  var  isTracking = false,
        xCenter,
        yCenter,
        videoInput = document.getElementById('vid'),
@@ -28,7 +36,6 @@ $(document).ready(function(){
   // set the width of it to be window width and height
   fogCanvas.width = document.documentElement.clientWidth;
   fogCanvas.height = document.documentElement.clientHeight;
-
   // the face tracking setup
   var htracker = new headtrackr.Tracker({
       calcAngles : true,
@@ -36,8 +43,116 @@ $(document).ready(function(){
       headPosition : false
   });
 
+  var yMax = 0,
+      yMin = 0,
+      yCenterValues = [];
+
   htracker.init(videoInput, canvasInput);
   htracker.start();
+
+  function adjuster(x) {
+    var offSetter = -(fogCanvas.height / 2),
+        adjustby = (fogCanvas.height / 15);
+  switch (true) {
+    case (x < (fogCanvas.height / 5.6)):
+      offSetter += (1 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 5.469)):
+      offSetter += (2 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 5.344)):
+      offSetter += (3 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 5.224)):
+      offSetter += (4 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 5.0)):
+      offSetter += (5 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.895)):
+      offSetter += (6 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.795)):
+      offSetter += (7 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.698)):
+      offSetter += (8 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.605)):
+      offSetter += (9 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.516)):
+      offSetter += (10 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.430)):
+      offSetter += (11 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.348)):
+      offSetter += (12 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.268)):
+      offSetter += (13 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.192 )):
+      offSetter += (14 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.217)):
+      offSetter = 0;
+      break;
+    case (x < (fogCanvas.height / 4.118 )):
+      offSetter += (15 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 4.046)):
+      offSetter += (16 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.977)):
+      offSetter += (17 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.911)):
+      offSetter += (18 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.846)):
+      offSetter += (19 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.784)):
+      offSetter += (20 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.723)):
+      offSetter += (21 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.665 )):
+      offSetter += (22 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.608)):
+      offSetter += (23 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.553)):
+      offSetter += (24 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.500)):
+      offSetter += (25 * adjustby);
+      break;
+    case (x < (fogCanvas.height / 3.448)):
+        offSetter += (26 * adjustby);
+        break;
+    case (x < (fogCanvas.height / 3.398)):
+        offSetter += (27 * adjustby);
+        break;
+    case (x < (fogCanvas.height / 3.349)):
+        offSetter += (28 * adjustby);
+        break;
+    case (x < (fogCanvas.height / 3.302)):
+        offSetter += (29 * adjustby);
+        break;
+    case (x < (fogCanvas.height / 3.256)):
+        offSetter += (30 * adjustby);
+        break;
+    default:
+      offSetter = (fogCanvas.height / 2.3);
+  }
+  //console.log("the offsetter " + offSetter);
+  return offSetter;
+  }
 
   // for each facetracking event received draw rectangle around tracked face on canvas
   document.addEventListener("facetrackingEvent", function( event ) {
@@ -66,9 +181,10 @@ $(document).ready(function(){
       // try changing event.x to event.width: THIS WORKED!!
       // get center of green box based on coords of the diagonal, -AA
       xCenter = ((x1 +x2)/2) + event.x;
-      yCenter = ((y1 + y2)/2) + event.y;
-
-
+      yCenter = ((y1 + y2)/2) +  event.y;
+      // console.log("The event y" + event.y);
+      // console.log("yCenter unadjusted" + yCenter);
+      // yCenterValues.push(yCenter);
     // This determines if my face is close to the screen
     var faceWidth = event.width,
         videoWidth = videoInput.width,
@@ -81,9 +197,13 @@ $(document).ready(function(){
       pracImgContext.globalCompositeOperation = "lighten";
       var pracImgWidth = pracImgCanvas.clientWidth;
       var pracImgHeight = pracImgCanvas.clientHeight;
+
       // to adjust the painting of the fog from the dimensions of the overlay to the pracImgCanvas
       xCenter = xCenter * (pracImgWidth / 320.0);
-      yCenter = yCenter * (pracImgHeight / 240.0);
+      var adjustment = adjuster(event.y);
+      //yCenter = yCenter * (pracImgHeight / 240.0) + adjustment;
+      yCenter = yCenter * (pracImgHeight / 240.0) + adjustment;
+      //console.log("yCenter adjusted " + yCenter);
 
       // to increase the size of the radius of the fog circles
       var windowRatioCorrection = pracImgWidth / 320.0;
@@ -104,6 +224,7 @@ $(document).ready(function(){
           //console.log(coords[i][0]);
           // draws each circle in the coords array
           pracImgContext.beginPath(); // Start the path
+          // pracImgWidth - coords[i][0] makes it go left when move head left and vice versa ... before went oppisite
           pracImgContext.arc(pracImgWidth-coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
           pracImgContext.closePath();
           pracImgContext.fillStyle = coords[i][3];
@@ -113,9 +234,14 @@ $(document).ready(function(){
     } // This ends the if statement for event.detection
   });
 
-  document.addEventListener("mousedown", function(e){
-        isTracking = true;
-      });
+  // document.addEventListener("mousedown", function(e){
+  //
+  //       // console.log("This is the max yCenter" + yMax);
+  //       // console.log("This is the min yCenter" + yMin);
+  //       // console.dir(yCenterValues);
+  //       //console.log(fogCanvas.height);
+  //
+  // });
 
   document.addEventListener("mousemove", function(e){
     var lastMouseCoords;
@@ -158,7 +284,7 @@ var clickX = [],
     pracImgContext.shadowColor = "rgba(0,0,0,1)";
     pracImgContext.lineWidth =  windowRatioCorrection * 4;
     pracImgContext.globalCompositeOperation = "destination-out";
-    
+
 
     for(var i=0; i < clickX.length; i++) {
       pracImgContext.beginPath();
@@ -177,9 +303,54 @@ var clickX = [],
     var mouseX = e.pageX - this.offsetLeft,
         mouseY = e.pageY - this.offsetTop;
 
+    isTracking = true;
     paint = true;
     addClick(e.pageX, e.pageY);
     redraw();
+    //
+    // For the slow clearing...
+    var timers = [],
+    secondsStart = 1000,
+    secondsInc = 20,
+    reduceRadius = 0,
+    opacityInc = 0.0;
+
+
+    for (var i = 0; i < 11; i++) {
+      for(var j = (aa/2) ; j > 2; j = j - 1) {
+        secondsStart += secondsInc
+        timers.push([ new Date( ( new Date() ).getTime() + secondsStart ), j]);
+      }
+    }
+
+    timer = setInterval( clearFog, 20 );
+
+    // function that clears canvas
+    function clearFog() {
+        // check if times array is empty, when try and executes block of code, array will shifted (dequeue)
+        if( timers.length ) {
+            // check if the first row is equal to the current time
+            if ( parseInt( timers[0][0].getTime() / 1000 ) <= parseInt( new Date().getTime() / 1000 ) ) {
+                // draw a arc with only an outline of destination-out that ~erase
+                // make globalAlpha gradually less (higher, boundry 1)
+                //pracImgContext.scale(1, 1); // trying to make an ellipse
+                pracImgContext.beginPath();
+                pracImgContext.globalCompositeOperation = "destination-out";
+                pracImgContext.lineWidth = 1;
+                pracImgContext.globalAlpha = 0.026;
+                pracImgContext.arc(aa/2, vp/2, timers[0][1], 0, 2*Math.PI);
+                pracImgContext.stroke();
+                // remove from array
+                timers.shift();
+            }
+        } else {
+            // when array is empty, remove interval
+            clearInterval( timer );
+            //pracImgContext.scale(1,1);
+        }
+    }
+
+    //
   });
 
   $('#pracImgCanvas').mousemove(function(e){
@@ -195,50 +366,6 @@ var clickX = [],
     clickX = [];
     clickY = [];
     clickDrag = [];
-
-    // For the slow clearing...
-    var timers = [],
-    secondsStart = 3000,
-    secondsInc = 200,
-    reduceRadius = 0,
-    opacityInc = 0.0;
-
-    for(var i = 0; i < 300; i++) {
-      secondsStart += secondsInc;
-      if (timers.length % 4 === 0) {
-        reduceRadius += 4;
-        opacityInc = 0.05;
-      }
-      opacityInc += 0.025;
-     timers.push([ new Date( ( new Date() ).getTime() + secondsStart ), reduceRadius, opacityInc]);
-    }
-
-    timer = setInterval( clearFog, 200 );
-
-    // function that clears canvas
-    function clearFog() {
-        // check if times array is empty, when try and executes block of code, array will shifted (dequeue)
-        if( timers.length ) {
-            // check if the first row is equal to the current time
-            if ( parseInt( timers[0][0].getTime() / 1000 ) <= parseInt( new Date().getTime() / 1000 ) ) {
-                // draw a arc with only an outline of destination-out that ~erase
-                // make globalAlpha gradually less (higher, boundry 1)
-                //pracImgContext.scale(1, 1); // trying to make an ellipse
-                pracImgContext.beginPath();
-                pracImgContext.globalCompositeOperation = "destination-out";
-                pracImgContext.lineWidth = 4;
-                pracImgContext.globalAlpha = timers[0][2];
-                pracImgContext.arc(aa/2, vp/2, 400-timers[0][1], 0, 2*Math.PI);
-                pracImgContext.stroke();
-                // remove from array
-                timers.shift();
-            }
-        } else {
-            // when array is empty, remove interval
-            clearInterval( timer );
-            //pracImgContext.scale(1,1);
-        }
-    }
     // End slow clearing
   }); // End mouseup
 

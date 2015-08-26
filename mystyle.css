@@ -20,7 +20,22 @@ video {
 }
 
 iframe {
-	margin-top: -30px;
+	margin-top: -53px;
+}
+
+#notChrome {
+	display: none;
+	background-color: black;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	color: rgba(209,210,210,.7);
+	text-align: center;
+	font-family: 'Lato', sans-serif;
+	font-size: 1em;
+	letter-spacing: .1em;
+	line-height: 1.4em
 }
 
 #introInfo {
@@ -64,6 +79,21 @@ h3 {
 
 #introInfo p {
 	text-transform: uppercase;
+}
+
+#notChrome p {
+	text-transform: uppercase;
+	text-align: center;
+}
+
+#introInfo a {
+	text-decoration: none;
+	color: rgba(209,210,210,.7)
+}
+
+#notChrome a {
+	text-decoration: none;
+	color: rgba(209,210,210,.7)
 }
 
 .bold {
