@@ -1,57 +1,73 @@
+/*
+ * Fog Window
+ * By: Valentina and Armand (Two cool cats)
+ * Credits: Headtrackr; https://github.com/auduno/headtrackr
+ * Date: August 27, 2015
+ */
+
+
 $(document).ready(function(){
 
+  // Check if the browser is Chrome
+  // Headtrackr works best with Chrome
   var isChrome = !!window.chrome;
-
+  // If browser is not Chrome, then show warning div
   if (!isChrome) {
     $('#notChrome').show();
     $('#introInfo').hide();
   }
-  // Hide the intro div page
+
+  // Slowly fade the intro div page after circa 7 seconds
   $("#introInfo").delay(7000).fadeOut(9000);
 
+  // Height of the user's window
   var clientHeight = document.documentElement.clientHeight;
+  // Expanding the height of the video to hide the advertisments on the bottom (dynamically)
   $("iframe").css("margin-top", (clientHeight * -(0.076)));
+  // Placing the facebook share button, taking into account the margin-top difference from line 18
   $("#shareFacebook").css("bottom", (clientHeight * (0.076)) - (clientHeight * 0.12) );
 
   // set up video and canvas elements needed
-
   var  isTracking = false,
        xCenter,
        yCenter,
        videoInput = document.getElementById('vid'),
        canvasInput = document.getElementById('compare'),
        canvasOverlay = document.getElementById('overlay'),
+       fogCanvas = document.getElementById("pracImgCanvas"),
        overlayContext = canvasOverlay.getContext('2d'),
        globalFaceRatio;
 
   // set style for canvas for the headtrackr
   canvasOverlay.style.position = "absolute";
   canvasOverlay.style.top = '0px';
-  // IN FRONT
   canvasOverlay.style.zIndex = '100001';
   canvasOverlay.style.display = 'none';
 
-  // lab experiment by VP and AA
-  // set the pracImgCanvas to the window width and height, cross fingers ... please work!!!
-  // get the pracImgCanvas element
-  var fogCanvas = document.getElementById("pracImgCanvas");
-  // set the width of it to be window width and height
+
+  // This is where we will paint our 'fog'
+  // Set the width to be Window width and height, so it fills the screen
   fogCanvas.width = document.documentElement.clientWidth;
   fogCanvas.height = document.documentElement.clientHeight;
-  // the face tracking setup
+
+
+  /* **************************** Face tracking setup **************************** */
+  // Create a new headtrackr object
   var htracker = new headtrackr.Tracker({
       calcAngles : true,
       ui : false,
       headPosition : false
   });
+  htracker.init(videoInput, canvasInput);
+  htracker.start();
 
+// TODO - maybe delete?
   var yMax = 0,
       yMin = 0,
       yCenterValues = [];
 
-  htracker.init(videoInput, canvasInput);
-  htracker.start();
-
+// Previous issue was not being able to paint fog on the entire height of the fogCanvas
+// Solution was to creates a linear adjustment from the event.y to fill the height
   function adjuster(x) {
     var offSetter = -(fogCanvas.height / 2),
         adjustby = (fogCanvas.height / 15);
@@ -152,18 +168,17 @@ $(document).ready(function(){
     default:
       offSetter = (fogCanvas.height / 2.3);
   }
-  //console.log("the offsetter " + offSetter);
   return offSetter;
   }
 
-  // for each facetracking event received draw rectangle around tracked face on canvas
   document.addEventListener("facetrackingEvent", function( event ) {
-    // clear canvas
+    // This sets up the area where the green box will be drawn
     overlayContext.clearRect(0,0,320,240);
 
     if (event.detection == "CS") {
-
-      //This is the green box that represents the mouth, -AA
+      
+      // For each facetracking event received, draw a rectangle around tracked face on canvas
+      // This was used for initial purposes to calculate the center of the mouth and was subsequently hidden
       overlayContext.translate(event.x, event.y);
       overlayContext.rotate(event.angle-(Math.PI/2));
       overlayContext.strokeStyle = "#00CC00";
@@ -174,43 +189,45 @@ $(document).ready(function(){
       overlayContext.translate(-event.x, -event.y);
 
       // event.[width/height] is the face detected
-      // points to get the diagonal
+      // Points to get the diagonal (midpoint of mouth x,y)
       var x1 = (-(event.width/3)) >> 0;
       var y1 = (-(event.height/2) + 85) >> 0;
       var x2 = ((event.width/5)+ 70);
       var y2 = (event.height/5);
 
-      // try changing event.x to event.width: THIS WORKED!!
-      // get center of green box based on coords of the diagonal, -AA
+      // Get center of green box based on coords of the diagonal
+      // These values will be used to calculate where to blow fog
       xCenter = ((x1 +x2)/2) + event.x;
       yCenter = ((y1 + y2)/2) +  event.y;
-      // console.log("The event y" + event.y);
-      // console.log("yCenter unadjusted" + yCenter);
-      // yCenterValues.push(yCenter);
-    // This determines if my face is close to the screen
-    var faceWidth = event.width,
-        videoWidth = videoInput.width,
-        face2canvasRatio = videoWidth/faceWidth;
-        globalFaceRatio = face2canvasRatio;
 
-    if(face2canvasRatio <= 2.4) {
-      var pracImgCanvas = document.getElementById("pracImgCanvas");
-      var pracImgContext = pracImgCanvas.getContext("2d");
-      pracImgContext.globalCompositeOperation = "lighten";
-      var pracImgWidth = pracImgCanvas.clientWidth;
-      var pracImgHeight = pracImgCanvas.clientHeight;
+      // Determining if your face is close to the screen
+      var faceWidth = event.width,
+          videoWidth = videoInput.width,
+          face2canvasRatio = videoWidth/faceWidth;
+          globalFaceRatio = face2canvasRatio;
 
-      // to adjust the painting of the fog from the dimensions of the overlay to the pracImgCanvas
+      // If we are close to the screen -
+      if(face2canvasRatio <= 2.4) {
+        // pracImgCanvas refers to our fogCanvas (changing name for a different implementation)
+        var pracImgCanvas = document.getElementById("pracImgCanvas"),
+            pracImgContext = pracImgCanvas.getContext("2d"),
+            pracImgWidth = pracImgCanvas.clientWidth,
+            pracImgHeight = pracImgCanvas.clientHeight;
+
+        pracImgContext.globalCompositeOperation = "lighten";
+
+      // Converts the headtrackr imposed 320 X 240 dimensions of the overlay to fit the client dimensions
       xCenter = xCenter * (pracImgWidth / 320.0);
+      // Line 220 calls the adjuster function from above to paint fog relevant to the y-axis
       var adjustment = adjuster(event.y);
-      //yCenter = yCenter * (pracImgHeight / 240.0) + adjustment;
       yCenter = yCenter * (pracImgHeight / 240.0) + adjustment;
-      //console.log("yCenter adjusted " + yCenter);
 
-      // to increase the size of the radius of the fog circles
+      // To increase the size of the radius of the fog circles according to client size
       var windowRatioCorrection = pracImgWidth / 320.0;
 
-      // V needs to fiddle to get the circles correctly spaced
+      // These are the circles painted for each 'breathe'
+      // Random values to space circles more organically
+      // Transparency for color
       var coords = [
         [(xCenter - (20  * windowRatioCorrection)), (yCenter - (10 * windowRatioCorrection)), (20 * windowRatioCorrection), "rgba(209,210,210,.07)"],
         [(xCenter - (30 * windowRatioCorrection)), (yCenter - (25 * windowRatioCorrection)), (10 * windowRatioCorrection), "rgba(209,210,210,.04)"],
@@ -222,11 +239,11 @@ $(document).ready(function(){
         [(xCenter - (20 * windowRatioCorrection)), (yCenter - (30 * windowRatioCorrection)), (12 * windowRatioCorrection), "rgba(209,210,210,.02)"]
         ];
 
+        // Painting each circle to the page from its array above
         for(var i = 0; i < coords.length; i++) {
-          //console.log(coords[i][0]);
-          // draws each circle in the coords array
           pracImgContext.beginPath(); // Start the path
-          // pracImgWidth - coords[i][0] makes it go left when move head left and vice versa ... before went oppisite
+          // Orginally, painting was mirrored - line 245 flips the painting of x coordinate
+          // pracImgWidth - coords[i][0] makes it go left when move head left and vice versa ...
           pracImgContext.arc(pracImgWidth-coords[i][0], coords[i][1], coords[i][2], 0, Math.PI*2, false);
           pracImgContext.closePath();
           pracImgContext.fillStyle = coords[i][3];
@@ -236,17 +253,10 @@ $(document).ready(function(){
     } // This ends the if statement for event.detection
   });
 
-  // document.addEventListener("mousedown", function(e){
-  //
-  //       // console.log("This is the max yCenter" + yMax);
-  //       // console.log("This is the min yCenter" + yMin);
-  //       // console.dir(yCenterValues);
-  //       //console.log(fogCanvas.height);
-  //
-  // });
-
+  /* **************************** Erasing **************************** */
   document.addEventListener("mousemove", function(e){
     var lastMouseCoords;
+    // Used for the finger erase to establish line coordinates
     if(isTracking === true) {
         var canvas = document.getElementById("pracImgCanvas");
         var pracImgContext = canvas.getContext("2d");
@@ -256,35 +266,38 @@ $(document).ready(function(){
   });
 
   document.addEventListener("mouseup", function(e) {
+    // When you release 'finger' stop tracking to determine endpoint of line
     isTracking = false;
   });
 
-// click event handling
 
-// variables to track x and y mouse coordinates to erase
-var clickX = [],
-    clickY = [],
-    clickDrag = [],
-    paint,
-    pracImgCanvas = document.getElementById("pracImgCanvas"),
-    pracImgContext = pracImgCanvas.getContext("2d"),
-    pracImgWidth = pracImgCanvas.clientWidth,
-    windowRatioCorrection = pracImgWidth / 320.0,
-    aa = pracImgCanvas.clientWidth,
-    vp = pracImgCanvas.clientHeight;
+  // Variables to track mouse.x + y coordinates to erase
+  var clickX = [],
+      clickY = [],
+      clickDrag = [],
+      paint,
+      pracImgCanvas = document.getElementById("pracImgCanvas"),
+      pracImgContext = pracImgCanvas.getContext("2d"),
+      pracImgWidth = pracImgCanvas.clientWidth,
+      windowRatioCorrection = pracImgWidth / 320.0,
+      aa = pracImgCanvas.clientWidth,
+      vp = pracImgCanvas.clientHeight;
 
+    // Storing the coordinates of mouse movements to use later
   function addClick(x, y, dragging) {
     clickX.push(x);
     clickY.push(y);
     clickDrag.push(dragging);
   }
 
+  // This does the erasing of the 'finger'
   function redraw(){
     pracImgContext.strokeStyle = "rgba(0,0,0,1)";
     pracImgContext.lineJoin = pracImgContext.lineCap = "round";
     pracImgContext.shadowBlur = 3;
     pracImgContext.shadowColor = "rgba(0,0,0,1)";
     pracImgContext.lineWidth =  windowRatioCorrection * 4;
+    // Destination-out is like the erase property
     pracImgContext.globalCompositeOperation = "destination-out";
 
 
@@ -301,6 +314,10 @@ var clickX = [],
     }
   }
 
+  // Whenever we mousedown do 3 things:
+  // Call addClick()
+  // Call redraw()
+  // Call clearFog()
   $('#pracImgCanvas').mousedown(function(e){
     var mouseX = e.pageX - this.offsetLeft,
         mouseY = e.pageY - this.offsetTop;
@@ -309,15 +326,17 @@ var clickX = [],
     paint = true;
     addClick(e.pageX, e.pageY);
     redraw();
-    //
+
     // For the slow clearing...
     var timers = [],
-    secondsStart = 1000,
-    secondsInc = 20,
-    reduceRadius = 0,
-    opacityInc = 0.0;
+        secondsStart = 1000,
+        secondsInc = 20,
+        reduceRadius = 0,
+        opacityInc = 0.0;
 
-
+    // create an array that the timer will check at a set interval
+    // the array will have times in advance created by the Date() + some amount of seconds and the amount to decrease the radius
+    // This method was used because of the way async works - it had prevented us from calling the clear fog function in a for loop
     for (var i = 0; i < 11; i++) {
       for(var j = (aa/2) ; j > 2; j = j - 1) {
         secondsStart += secondsInc
@@ -325,34 +344,30 @@ var clickX = [],
       }
     }
 
+    // set and run an interval that calls the clear fog
     timer = setInterval( clearFog, 20 );
 
-    // function that clears canvas
+    // This will slowly clear the whole canvas, as if the total fog was fading away into memory...
     function clearFog() {
-        // check if times array is empty, when try and executes block of code, array will shifted (dequeue)
-        if( timers.length ) {
-            // check if the first row is equal to the current time
-            if ( parseInt( timers[0][0].getTime() / 1000 ) <= parseInt( new Date().getTime() / 1000 ) ) {
-                // draw a arc with only an outline of destination-out that ~erase
-                // make globalAlpha gradually less (higher, boundry 1)
-                //pracImgContext.scale(1, 1); // trying to make an ellipse
-                pracImgContext.beginPath();
-                pracImgContext.globalCompositeOperation = "destination-out";
-                pracImgContext.lineWidth = 1;
-                pracImgContext.globalAlpha = 0.026;
-                pracImgContext.arc(aa/2, vp/2, timers[0][1], 0, 2*Math.PI);
-                pracImgContext.stroke();
-                // remove from array
-                timers.shift();
-            }
-        } else {
-            // when array is empty, remove interval
-            clearInterval( timer );
-            //pracImgContext.scale(1,1);
+        // check if times array is empty, when try and executes block of code, array will shift (dequeue)
+      if( timers.length ) {
+        // check if the first row is equal to or less than the current time ... run
+        if ( parseInt( timers[0][0].getTime() / 1000 ) <= parseInt( new Date().getTime() / 1000 ) ) {
+            // draw an arc with only an outline of destination-out that will erase with opacity
+            pracImgContext.beginPath();
+            pracImgContext.globalCompositeOperation = "destination-out";
+            pracImgContext.lineWidth = 1;
+            pracImgContext.globalAlpha = 0.036;
+            pracImgContext.arc(aa/2, vp/2, timers[0][1], 0, 2*Math.PI);
+            pracImgContext.stroke();
+            // remove this row from the array so it will check the next date in the array
+            timers.shift();
         }
+      } else {
+        // when array is empty, remove interval to stop the background process
+        clearInterval( timer );
+      }
     }
-
-    //
   });
 
   $('#pracImgCanvas').mousemove(function(e){
@@ -368,38 +383,7 @@ var clickX = [],
     clickX = [];
     clickY = [];
     clickDrag = [];
-    // End slow clearing
-  }); // End mouseup
+  }); 
 
-/** COLT THIS IS FOR YOU!!!!
-  * This is mock data that they for loop that makes the array outputs
-  * The numbers are different than the current for loop
-*/
-// var timers = [
-//     [new Date( ( new Date() ).getTime() + 1000), 10, 0.2],
-//     [new Date( ( new Date() ).getTime() + 1200),10, 0.25],
-//     [new Date( ( new Date() ).getTime() + 1400),10, 0.3],
-//     [new Date( ( new Date() ).getTime() + 1600),10, 0.35],
-//     [new Date( ( new Date() ).getTime() + 1800),10, 0.4],
-//     [new Date( ( new Date() ).getTime() + 2000),10, 0.45],
-//     [new Date( ( new Date() ).getTime() + 2200),10, 0.5],
-//     [new Date( ( new Date() ).getTime() + 2400),10, 0.55],
-//     [new Date( ( new Date() ).getTime() + 2600), 10, 0.6],
-//     [new Date( ( new Date() ).getTime() + 2800),10, 0.65],
-//     [new Date( ( new Date() ).getTime() + 3000),10, 0.7],
-//     [new Date( ( new Date() ).getTime() + 3200),10, 0.75],
-//     [new Date( ( new Date() ).getTime() + 3400),10, 0.8],
-//     [new Date( ( new Date() ).getTime() + 3600),10, 0.85],
-//     [new Date( ( new Date() ).getTime() + 3800),10, 0.9],
-//     [new Date( ( new Date() ).getTime() + 4000),10, 0.95],
-//     [new Date( ( new Date() ).getTime() + 4200),20, 0.1],
-//     [new Date( ( new Date() ).getTime() + 18000),20, 0.2],
-//     [new Date( ( new Date() ).getTime() + 19000),20, 0.3],
-//     [new Date( ( new Date() ).getTime() + 20000),20, 0.4],
-//     [new Date( ( new Date() ).getTime() + 21000),20, 0.5],
-//     [new Date( ( new Date() ).getTime() + 22000),20, 0.6],
-//     [new Date( ( new Date() ).getTime() + 23000),20, 0.8],
-//     [new Date( ( new Date() ).getTime() + 24000),20, 0.9],
-// ]
 
-}); // end
+}); // end!!!
