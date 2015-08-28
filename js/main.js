@@ -61,7 +61,7 @@ $(document).ready(function(){
   htracker.init(videoInput, canvasInput);
   htracker.start();
 
-// TODO - maybe delete?
+
   var yMax = 0,
       yMin = 0,
       yCenterValues = [];
